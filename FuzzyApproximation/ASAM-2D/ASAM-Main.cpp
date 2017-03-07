@@ -93,9 +93,6 @@ int main(int argc, char *argv[]){
 	fxn1.fill(0);
 	cout << "\n# of Input Data Points= " << fxn1.rows() << endl;
 
-	//vector<double> Xin(N,1);
-	//vector<double> Yin(N,1);
-	//vector<double> Fxyin(N,1);
 	vector<double> n(N,1);
 	double u1, u2, g1, g2;
 
@@ -115,19 +112,22 @@ int main(int argc, char *argv[]){
 
 	switch (noisetype) {
 		// No noise
-		case 1: for (int i=0; i<N; i++) {
+		case 1: cout << "NOISE MODE : No Noise" << endl;  
+			for (int i=0; i<N; i++) {
 				n[i] = 0;
 				
 			}
 			break;
 		// Uniform
-		case 2: for (int i=0; i<N; i++) {
+		case 2: cout << "NOISE MODE : Uniform" << endl; 
+			for (int i=0; i<N; i++) {
 				n[i] = rand()/(float)RAND_MAX;
 				n[i] = a + (n[i] * (b-a));
 			}
 			break;
 		// Gaussian using Box-Muller transform
-		case 3: for (int i=0; i<N; i++) {
+		case 3: cout << "NOISE MODE : Gaussian" << endl; 
+			for (int i=0; i<N; i++) {
 				u1 = rand()/(float)RAND_MAX;
 				u2 = rand()/(float)RAND_MAX;
 				n[i] = sqrt(-2*log(u1))*cos(2*PI*u2);
@@ -135,7 +135,8 @@ int main(int argc, char *argv[]){
 			}
 			break;
 		// Cauchy using Box-Muller transformation -> ratio
-		case 4: for (int i = 0; i<N; i++) {
+		case 4: cout << "NOISE MODE : Cauchy" << endl; 
+			for (int i = 0; i<N; i++) {
 				u1 = rand()/(float)RAND_MAX;
 				u2 = rand()/(float)RAND_MAX;
 				g1 = sqrt(-2*log(u1))*cos(2*PI*u2);
