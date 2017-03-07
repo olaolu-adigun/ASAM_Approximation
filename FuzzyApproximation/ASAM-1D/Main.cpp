@@ -13,11 +13,6 @@ using namespace std;
 #define PI 3.14159265
 
 
-/*
-Ideas: 
-	- Compute MAD instead of MSE ???
-*/
-
 vector<double> xin, fx;  //should use a map or valarray container instead.
 /* To Work in subdirs:*/
 //string md = "md ";		//make dir on unices or windows+cygwin

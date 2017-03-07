@@ -11,4 +11,4 @@ ASAM1D:
 clean:
 	rm -f *.o Main SAMUtils
 	rm -rf Cauchy Laplace Gauss Sinc Tanh Tri
-	rm -f InputFxn.dat
+	rm -f InputFxn.dat Errors.dat
