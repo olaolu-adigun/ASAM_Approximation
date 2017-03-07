@@ -1,4 +1,4 @@
-Author: Osonde Osoba
+Author: Osonde Osoba and Adigun Olaoluwa
 Purpose: Trains 6 SAMs to approximate a user-specified 1-dimensional function using samples of the objective function.
 
 How to run:
