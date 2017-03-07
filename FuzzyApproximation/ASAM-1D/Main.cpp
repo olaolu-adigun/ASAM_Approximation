@@ -36,6 +36,16 @@ int main(int argc, char *argv[])
 	int nRules = 12; //5; // # of Rules. Formerly = 12;
 	int epochSize = 2000; // Report min error solution after epoch # of steps
 
+        double min_x = 0.00, max_x = 2.00;  // Set input range
+	int N = 1000; // Number of input points
+	
+	double a = 0.0 , b = 0.1; // Define the parameter for Uniform noise
+	double m = 0.0, d = 0.001; // Define the parameter for the Cauchy noise
+	double mu = 0.0, sigma = 0.001;  // Define the paramter for Gaussian noise
+
+	// Generate the noise samples
+	int noisetype = 2;  // 0 -- No noise, 1 -- Uniform Noise, 2 -- Gaussian, 3-- Cauchy Noise  
+
 	//int adaptIters = epochSize*30;
         int adaptIters = epochSize*10;
 	int defaultPrec = cout.precision();
@@ -48,11 +58,8 @@ int main(int argc, char *argv[])
 	vector<double> errors(6, 100);
 	int fxnpts, k;
 	
-	// Set input information
-        double min_x = 0.00, max_x = 2.00;
-	int N = 1000;
+	
 	double step_size = (max_x - min_x) / N;
-	cout << step_size << endl;
 	vector<double> xin(N,1);
 	vector<double> fx(N,1);
 	
@@ -67,19 +74,9 @@ int main(int argc, char *argv[])
 	cout<<"File Opening done \n";
 
 
-///////// DEFINE PARAMETER FOR ADDED NOISE
+	// Generate noise
 	vector<double> n(N,1);
 	double u1, u2, g1, g2;
-
-	// Define the parameter for Uniform noise
-	double a = 0.0 , b = 0.1;
-	// Define the parameter for the Cauchy noise
-	double m = 0.0, d = 0.001;
-	// Define the paramter for Gaussian noise
-	double mu = 0.0, sigma = 0.001;
-
-	// Generate the noise samples
-	int noisetype = 2;  // 0 -- No noise, 1 -- Uniform Noise, 2 -- Gaussian, 3-- Cauchy Noise  
 
 	switch (noisetype) {
 		// No noise
@@ -124,12 +121,11 @@ int main(int argc, char *argv[])
 	pdfile << " x " << "\t" << " f(x) " << endl;
 	for (int i = 0; i <= N; i++){
 		xin[i] = min_x + (i*step_size);
-		fx[i] = sin(xin[i]) + n[i]; 
+		fx[i] = sin(xin[i]) + n[i];    // DEFINE FUNCTION f(x)
 		pdfile << xin[i] << "\t" << fx[i] << endl;
 	}
 
-////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////
+
 
 	fxnpts = fx.size();
 	InitializeAll(nRules, (int) (0.5*fxnpts), (int) fxnpts);

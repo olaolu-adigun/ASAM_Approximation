@@ -18,6 +18,7 @@ public:
 	/**** Cauchy ASAM Functions ****/
 	void Learn();
 	double SAM(double, double);		/* Cauchy SAM */
+	double PROB_J(double, double, int);
 };
 
 CauchyASAM::CauchyASAM(const std::vector<double>& xvals, const std::vector<double>& yvals, const std::vector<double>& fxyvals, int _numpat, int _numsam, int _numdes):ASAM(xvals, yvals, fxyvals, _numpat, _numsam, _numdes){
@@ -62,6 +63,29 @@ double CauchyASAM::SAM(double xin, double yin){
 	if (denchy != 0.0)  return num/denchy;
 	else                return 0.0;
 }
+
+double CauchyASAM::PROB_J(double xin, double yin, int j){
+	int i;	double av,num, cx, cy;
+	denchy = 0.0;
+	num = 0.0;
+
+	for (i=0;i<NUMPAT;i++){
+		xmdchy[i] = (xin - means(i,0))/disps(i,0);
+		ymdchy[i] = (yin - means(i,1))/disps(i,1);
+		cx = 1.0/(1.0 + xmdchy[i]*xmdchy[i]);
+		cy = 1.0/(1.0 + ymdchy[i]*ymdchy[i]);
+
+		a[i] = cx*cy;
+		av = a[i]*volumes[i];
+		denchy = denchy+av;
+		if (i == j){
+			num = av;
+		}
+	}
+	if (denchy != 0.0)  return num/denchy;
+	else                return 0.0;
+}
+
 
 void CauchyASAM::Learn(){
 	int i,idx;

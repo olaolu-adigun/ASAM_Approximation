@@ -19,6 +19,8 @@ public:
 	/****Sinc ASAM Functions****************/
 	void Learn();
 	double SAM(double xin, double yin);		/* Sinc SAM */
+	double PROB_J(double xin, double yin, int j);
+
 };
 
 SincASAM::SincASAM(const std::vector<double>& xvals, const std::vector<double>& yvals, const std::vector<double>& fxyvals, int _numpat, int _numsam, int _numdes):ASAM(xvals, yvals, fxyvals, _numpat, _numsam, _numdes){
@@ -69,6 +71,37 @@ double SincASAM::SAM(double xin, double yin){
 	else
 		return 0.0;
 }
+
+
+double SincASAM::PROB_J(double xin, double yin, int j){
+	int i;
+	double av=0, num=0, sx, sy;
+	densinc = 0;
+
+	for (i=0;i<NUMPAT;i++){
+		xmdsinc[i] = (xin - means(i,0))/disps(i,0);
+		ymdsinc[i] = (yin - means(i,1))/disps(i,1);
+
+		if (xmdsinc[i] == 0.0) sx = 1.0;
+		else sx = sin(xmdsinc[i])/xmdsinc[i]; 
+		if(ymdsinc[i] == 0.0) sy = 1.0;
+		else sy = sin(ymdsinc[i])/ymdsinc[i];
+
+		a[i] = sx*sy;
+		av = a[i]*volumes[i];
+		densinc = densinc+av;
+
+		if (i == j){
+		num = av;
+		}
+
+	}
+	if (densinc != 0.0)
+		return num/densinc;
+	else
+		return 0.0;
+}
+
 
 void SincASAM::Learn(){
 	int i, idx;

@@ -61,6 +61,9 @@ protected:
 	virtual void Init();							/* ASAM Initializer */
 	virtual void Learn();							/* ASAM Adaptation */
 	virtual double SAM(double xin, double yin)=0;	/* SAM Approximator */
+	virtual double PROB_J(double xin, double yin , int j)=0;
+	//virtual double VAR(int j);
+	//virtual double CENT(int j);
 
 public:
 	//ASAM(void); // NOTE!!! No Copy- or Default- Constructor defined
@@ -145,11 +148,20 @@ void ASAM::Learn(){
 }
 
 double ASAM::Approx(){
-	int ind; double err, sumerr = 0;
+	int ind; double err, Fx, var, probj, val,cj, sumerr = 0;
 	for(ind=0; ind < NUMDES ; ind++){
-		F[ind] = SAM(xtest[ind], ytest[ind]);
+		Fx = SAM(xtest[ind], ytest[ind]);
+		F[ind] = Fx;		
 		err = des[ind] - F[ind];
 		sumerr += err*err;
+		val = 0.0;
+		for (int j = 0; j < NUMPAT; j++){
+			probj = PROB_J(xtest[ind], ytest[ind], j);
+			var = (disps(j*0)*disps(j,0))+(disps(j*1)*disps(j,1)); 
+			cj = centroids[j];
+			val = val + (probj*var) + (probj*(cj - Fx)*(cj - Fx));
+		}
+		Var[ind] = val;
 	}
 	return sumerr/(double)NUMDES;
 }
@@ -180,16 +192,27 @@ void ASAM::WriteParams(std::string out){
 
 void ASAM::WriteEpoch(int epoch){
 	std::ofstream ofp; 
+	std::ofstream ofp1;
+
 	std::ostringstream s; //to convert #s into string
+	std::ostringstream s1;
+
 	s <<"./" << this->type << "/" << "fuzzyF" << this->type << "-" << epoch << ".dat";
+	s1 <<"./" << this->type << "/" << "fuzzyV" << this->type << "-" << epoch << ".dat";
 
-	WriteParams("./" + this->type + "/" + "Parameters.par");	
+	WriteParams("./" + this->type + "/" + "Parameters.par");
+
 	ofp.open(s.str().c_str(), ios::out); if (ofp.fail()) filefail(s.str());
-	ofp << "  x   " << "\t \t" << "   y   " << "\t \t" << "  f(x,y)   " << endl;
-	for (int k=0;k<NUMDES;k++) 
-		ofp << xtest[k] << "\t" << ytest[k] << "\t"  << F[k] << std::endl;
+	ofp1.open(s1.str().c_str(), ios::out); if (ofp1.fail()) filefail(s1.str());
 
+	ofp << "  x   " << "\t \t" << "   y   " << "\t \t" << "  f(x,y)   " << endl;
+	ofp1 << "  x   " << "\t \t" << "   y   " << "\t \t" << " V[Y|X= x]   " << endl;
+	for (int k=0;k<NUMDES;k++){ 
+		ofp << xtest[k] << "\t" << ytest[k] << "\t"  << F[k] << std::endl;
+		ofp1 << xtest[k] << "\t" << ytest[k] << "\t"  << Var[k] << std::endl;
+	}
 	ofp.close();
+	ofp1.close();
 }
 
 void ASAM::resetCounter(){adaptCounter=1;}

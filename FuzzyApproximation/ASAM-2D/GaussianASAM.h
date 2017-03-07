@@ -19,7 +19,9 @@ public:
 	/**** Gaussian ASAM Functions ****/
 	void Learn();
 	double SAM(double xin, double yin);		/* Gaussian SAM */
+	double PROB_J(double xin, double yin, int j);
 };
+
 
 GaussianASAM::GaussianASAM(const std::vector<double>& xvals, const std::vector<double>& yvals, const std::vector<double>& fxyvals, int _numpat, int _numsam, int _numdes):ASAM(xvals, yvals, fxyvals, _numpat, _numsam, _numdes){
 	type="Gauss";
@@ -60,6 +62,27 @@ double GaussianASAM::SAM(double xin, double yin){
 	if (dengs != 0.0)  return num/dengs;
 	else               return 0.0;
 }
+
+double GaussianASAM::PROB_J(double xin, double yin, int j){
+	int i; double av;
+	double num=0.0;
+	dengs = 0.0;
+
+	for (i=0;i<NUMPAT;i++){			  //foreach fuzzy rule...
+		xmdgs[i] = (xin-means(i,0))/disps(i,0);    //calc intermediate centered gaussian xvar
+		ymdgs[i] = (yin-means(i,1))/disps(i,1);    //calc intermediate centered gaussian yvar
+		a[i] = exp(-(xmdgs[i]*xmdgs[i]) - (ymdgs[i]*ymdgs[i])); //calc Gaussian fit value
+		av = a[i]*volumes[i];               //calc fit-scaled volume of then-part
+		dengs = dengs+av;				  //calc denominator of SAM
+		if ( i == j){
+		num = av;			  //calc numerator of SAM
+		}
+	}
+	if (dengs != 0.0)  return num/dengs;
+	else               return 0.0;
+
+}
+
 
 void GaussianASAM::Learn(){ // New variable notation
 	int i=0, idx=0;
