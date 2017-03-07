@@ -67,7 +67,7 @@ int main(int argc, char *argv[])
 
 
 ///////// DEFINE PARAMETER FOR ADDED NOISE 
-	std::random_device rd;  //Will be used to obtain a seed for the random number engine
+	std::random_device rd;  // Will be used to obtain a seed for the random number engine
     	std::mt19937 gen(rd());
 	// Define the parameter for Uniform noise
 	double a = 0.0 , b = 0.1;
