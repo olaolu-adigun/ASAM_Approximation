@@ -1,7 +1,7 @@
-// 2DASAM-v2 main function
+// 2DASAM-v2.1 main function
 // Linear samples version
-// 17-Apr-2012
-// Osonde Osoba
+// 7-March-2017
+// Olaoluwa Adigun
 
 #include <iostream>
 #include <fstream>
