@@ -54,6 +54,7 @@ protected:
 	matrix means;				/* "location" of gaussian if-part set function */
 	matrix disps;				/* "width" of gaussian if-part set function */
 	std::vector<double> F;			/* SAM function approximation */
+	std::vector<double> Var;		/* SAM function approximation variance*/
 
 	double mu_m, mu_d, mu_cen, mu_V;  /* Adaptive Learning Rates */
 
@@ -131,6 +132,7 @@ void ASAM::Init(){
 
 	disps.resize(NUMPAT,2); disps.fill(base);      /* "width" of if-part set function */
 	F.assign(NUMDES, 0.0);   /* SAM approximator values */
+	Var.assign(NUMDES, 0.0);   /* SAM approximator values variance */
 
 	Eigen::VectorXd rndcen(NUMPAT);
 	rndcen.setLinSpaced(NUMPAT, Minf, Maxf ) ;
@@ -183,6 +185,7 @@ void ASAM::WriteEpoch(int epoch){
 
 	WriteParams("./" + this->type + "/" + "Parameters.par");	
 	ofp.open(s.str().c_str(), ios::out); if (ofp.fail()) filefail(s.str());
+	ofp << "  x   " << "\t \t" << "   y   " << "\t \t" << "  f(x,y)   " << endl;
 	for (int k=0;k<NUMDES;k++) 
 		ofp << xtest[k] << "\t" << ytest[k] << "\t"  << F[k] << std::endl;
 
