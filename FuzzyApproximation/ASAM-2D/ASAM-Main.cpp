@@ -8,8 +8,9 @@
 #include <sstream>
 #include <string>
 #include <vector>
-
 #include "Eigen/Core"
+
+#define PI 3.14159265
 
 using namespace std;
 using namespace Eigen;
@@ -23,7 +24,7 @@ int main(int argc, char *argv[]){
 
 	int numRules = 39;
 	int epochSize = 500; int adaptIters = epochSize*20;
-	matrix fxn;
+	matrix fxn, fxn1;
 	VectorXd xin, yin, fxyin;
 	const int fnums = 3; int temp;
 
@@ -35,24 +36,26 @@ int main(int argc, char *argv[]){
 	string rd, mk;
 	string mkcmd = "mkdir -p ";
 	string rmcmd = "rm -r ";
+	
+	
 
-	string fnames[3] = {"FxnGen2D.dat", "OutFxn.dat", "Errors.dat"};
+	string fnames[3] = {"FxnGen2D.dat", "InputFxn.dat", "Errors.dat"};
 
         std::fstream fxnio[3];
-        fxnio[0].open(fnames[0].data(), ios::in);
+        //fxnio[0].open(fnames[0].data(), ios::in);
         fxnio[1].open(fnames[1].data(), ios::out);
         fxnio[2].open(fnames[2].data(), ios::out);
-
-
+	
 	fxnio[1].precision(9);fxnio[2].precision(9);
 
-	if ( fxnio[0].fail() || fxnio[1].fail() || fxnio[2].fail()){
+	if (fxnio[1].fail() || fxnio[2].fail()){
 		cout<<"file i/o error.\n";
 		//system("PAUSE");  This system command does not exist in linux. You can achieve 
 		//		    same fanctionality with the linux command read 
 		return EXIT_FAILURE; 
 	}
-
+	cout<<"File Opening done \n";
+/***
 	// Determine dynamic matrix size
 	int nrows=0;
 	while(getline(fxnio[0], line)) nrows++;	
@@ -75,7 +78,7 @@ int main(int argc, char *argv[]){
 		fxnio[1] << endl;
 		r++; c = 0;
 	}	
-
+***/
 ////////////////////////////////////////////////////////////////////////////
 
 	// Set input information
@@ -85,33 +88,81 @@ int main(int argc, char *argv[]){
 
 	double min_y = 0.00, max_y = 6.414;	
 	double step_size_y = (max_y - min_y) / N;
-	
-	vector<double> Xin(N,1);
-	vector<double> Yin(N,1);
-	vector<double> Fxyin(N,1);
+
+	fxn1.resize(N, 3);
+	fxn1.fill(0);
+	cout << "\n# of Input Data Points= " << fxn1.rows() << endl;
+
+	//vector<double> Xin(N,1);
+	//vector<double> Yin(N,1);
+	//vector<double> Fxyin(N,1);
+	vector<double> n(N,1);
+	double u1, u2, g1, g2;
+
 
 	///////// DEFINE PARAMETER FOR ADDED NOISE
-	std::random_device rd;  // Will be used to obtain a seed for the random number engine
-    	std::mt19937 gen(rd());
+
 	// Define the parameter for Uniform noise
 	double a = 0.0 , b = 0.1;
-	uniform_real_distribution<double> uniform(a,b);
 	// Define the parameter for the Cauchy noise
 	double m = 0.0, d = 0.001;
-	cauchy_distribution<double> cauchy(m, d);
 	// Define the paramter for Gaussian noise
-	double mu = 0.0, sigma = 0.01;
-	normal_distribution<double> gaussian(mu, sigma);
-	
-	int noise_status = 0;  // Noise status is 0 or 1
+	double mu = 0.0, sigma = 0.001;
+
+	// Generate the noise samples
+	int noisetype = 2;    
 
 
+	switch (noisetype) {
+		// No noise
+		case 1: for (int i=0; i<N; i++) {
+				n[i] = 0;
+				
+			}
+			break;
+		// Uniform
+		case 2: for (int i=0; i<N; i++) {
+				n[i] = rand()/(float)RAND_MAX;
+				n[i] = a + (n[i] * (b-a));
+			}
+			break;
+		// Gaussian using Box-Muller transform
+		case 3: for (int i=0; i<N; i++) {
+				u1 = rand()/(float)RAND_MAX;
+				u2 = rand()/(float)RAND_MAX;
+				n[i] = sqrt(-2*log(u1))*cos(2*PI*u2);
+				n[i] = (n[i] * sigma) + mu;
+			}
+			break;
+		// Cauchy using Box-Muller transformation -> ratio
+		case 4: for (int i = 0; i<N; i++) {
+				u1 = rand()/(float)RAND_MAX;
+				u2 = rand()/(float)RAND_MAX;
+				g1 = sqrt(-2*log(u1))*cos(2*PI*u2);
+				g2 = sqrt(-2*log(u1))*sin(2*PI*u2);
+				n[i] = g1/g2;
+				n[i] = (n[i] * d) + m;
+			}
+	}
+
+	//Need to change precision of I/O pipes here...
+	fxnio[1].precision(9);
+
+	// Generate the samples
+	fxnio[1] << "  x   " << "\t \t" << "   y   " << "\t \t" << "   f(x,y)   " << endl;
+	for (int i = 0; i < N; i++){
+		fxn1(i,0) = min_x + (i*step_size_x);
+		fxn1(i,1) = min_x + (i*step_size_y);
+		fxn1(i,2) = (sin(fxn1(i,0))*cos(fxn1(i,1))) + n[i] ;
+		fxnio[1]  <<fxn1(i,0) << "\t" << fxn1(i,1) << "\t " << fxn1(i,2) << endl;
+	}
 
 ///////////////////////////////////////////////////////////////////////////
 
-	xin = (fxn.col(0)); vector<double> xv = eigvec2stdvec(xin) ;	
-	yin = (fxn.col(1)); vector<double> yv = eigvec2stdvec(yin) ;	
-	fxyin = (fxn.col(2)); vector<double>fxyv = eigvec2stdvec(fxyin) ;	
+	xin = (fxn1.col(0)); vector<double> xv = eigvec2stdvec(xin) ;	
+	yin = (fxn1.col(1)); vector<double> yv = eigvec2stdvec(yin) ;	
+	fxyin = (fxn1.col(2)); vector<double>fxyv = eigvec2stdvec(fxyin) ;	
+	
 
 	//...ASAM(xvals, yvals, fxyvals, _numpat, _numsam, _numdes)
 	//ASAM* sam =  new CauchyASAM( xv, yv, fxyv, numRules, (int) (0.5*xin.size()), xin.size() );
