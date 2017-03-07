@@ -12,7 +12,7 @@ using namespace std;
 #include "SAMUtils.h"
 
 /********Variables, Arrays Defaults*********************/
-int NUMPAT = 10;    /* number of fuzzy sets on input or output side*/
+int NUMPAT = 10;     /* number of fuzzy sets on input or output side*/
 int NUMSAM = 200;    /* use NUMSAM number of data pairs for training */
 int NUMDES = 400;    /* use NUMDES number of data pairs for testing */
 static unsigned int adaptCounter = 1;	/*Adaptation Step Counter*/
@@ -219,6 +219,7 @@ void WriteParams(string out, int fxn)
 	}
 	ofp.close();
 }
+
 
 void WriteEpoch(string basename, int epoch)
 {//enum Fitfxn {gauss, cauchy, tanhyp, laplace, triangle, sinc};

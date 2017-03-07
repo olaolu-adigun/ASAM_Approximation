@@ -4,13 +4,14 @@
 #include <sstream>
 #include <fstream>
 #include <vector>
-#include <random>
 #include <math.h>
 #include <typeinfo>
 
 using namespace std;
 
 #include "SAMUtils.h"
+#define PI 3.14159265
+
 
 /*
 Ideas: 
@@ -66,28 +67,60 @@ int main(int argc, char *argv[])
 	cout<<"File Opening done \n";
 
 
-///////// DEFINE PARAMETER FOR ADDED NOISE 
-	std::random_device rd;  // Will be used to obtain a seed for the random number engine
-    	std::mt19937 gen(rd());
+///////// DEFINE PARAMETER FOR ADDED NOISE
+	vector<double> n(N,1);
+	double u1, u2, g1, g2;
+
 	// Define the parameter for Uniform noise
 	double a = 0.0 , b = 0.1;
-	uniform_real_distribution<double> uniform(a,b);
 	// Define the parameter for the Cauchy noise
 	double m = 0.0, d = 0.001;
-	cauchy_distribution<double> cauchy(m, d);
 	// Define the paramter for Gaussian noise
-	double mu = 0.0, sigma = 0.01;
-	normal_distribution<double> gaussian(mu, sigma);
-	
-	int noise_status = 0;  // Noise status is 0 or 1
+	double mu = 0.0, sigma = 0.001;
+
+	// Generate the noise samples
+	int noisetype = 2;  // 0 -- No noise, 1 -- Uniform Noise, 2 -- Gaussian, 3-- Cauchy Noise  
+
+	switch (noisetype) {
+		// No noise
+		case 1: for (int i=0; i<N; i++) {
+				n[i] = 0;
+				
+			}
+			break;
+		// Uniform
+		case 2: for (int i=0; i<N; i++) {
+				n[i] = rand()/(float)RAND_MAX;
+				n[i] = a + (n[i] * (b-a));
+			}
+			break;
+		// Gaussian using Box-Muller transform
+		case 3: for (int i=0; i<N; i++) {
+				u1 = rand()/(float)RAND_MAX;
+				u2 = rand()/(float)RAND_MAX;
+				n[i] = sqrt(-2*log(u1))*cos(2*PI*u2);
+				n[i] = (n[i] * sigma) + mu;
+			}
+			break;
+		// Cauchy using Box-Muller transformation -> ratio
+		case 4: for (int i = 0; i<N; i++) {
+				u1 = rand()/(float)RAND_MAX;
+				u2 = rand()/(float)RAND_MAX;
+				g1 = sqrt(-2*log(u1))*cos(2*PI*u2);
+				g2 = sqrt(-2*log(u1))*sin(2*PI*u2);
+				n[i] = g1/g2;
+				n[i] = (n[i] * d) + m;
+			}
+	}
 
 	//Need to change precision of I/O pipes here...
 	pdfile.precision(9);
 
 	// Generate the samples
+	pdfile << " x " << "\t" << " f(x) " << endl;
 	for (int i = 0; i <= N; i++){
 		xin[i] = min_x + (i*step_size);
-		fx[i] = sin(xin[i]) + (noise_status*cauchy(gen)); 
+		fx[i] = sin(xin[i]) + n[i]; 
 		pdfile << xin[i] << "\t" << fx[i] << endl;
 	}
 
