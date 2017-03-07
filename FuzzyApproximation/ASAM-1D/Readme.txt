@@ -1,6 +1,12 @@
-Author: Osonde Osoba and Adigun Olaoluwa
-Purpose: Trains 6 SAMs to approximate a user-specified 1-dimensional function using samples of the objective function.
+Author (version 1.1) : Olaoluwa Adigun
+Author (version 1.0) : Osonde Osoba
+This is an update of version 1.1 with additional features.
 
+Version (1.0): Trains 6 SAMs to approximate a user-specified 1-dimensional function using samples of the objective function.
+Version (1.1): The added features are:
+              --- Computing the conditonal variance for the Fuzzy aproximation.
+              --- Fuzzy aproximation for noisy functions 
+         I
 How to run:
 ===========
 1) - The program takes function samples from a file "FxnGen.dat". You supply this file in the same directory as the program. The samples are multiple lines in the form:
