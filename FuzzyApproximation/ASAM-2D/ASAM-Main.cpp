@@ -78,8 +78,32 @@ int main(int argc, char *argv[]){
 
 ////////////////////////////////////////////////////////////////////////////
 
+	// Set input information
+	int N = 1000;
+	double min_x = 0.00, max_x = 6.414;	
+	double step_size_x = (max_x - min_x) / N;
 
+	double min_y = 0.00, max_y = 6.414;	
+	double step_size_y = (max_y - min_y) / N;
+	
+	vector<double> Xin(N,1);
+	vector<double> Yin(N,1);
+	vector<double> Fxyin(N,1);
 
+	///////// DEFINE PARAMETER FOR ADDED NOISE
+	std::random_device rd;  // Will be used to obtain a seed for the random number engine
+    	std::mt19937 gen(rd());
+	// Define the parameter for Uniform noise
+	double a = 0.0 , b = 0.1;
+	uniform_real_distribution<double> uniform(a,b);
+	// Define the parameter for the Cauchy noise
+	double m = 0.0, d = 0.001;
+	cauchy_distribution<double> cauchy(m, d);
+	// Define the paramter for Gaussian noise
+	double mu = 0.0, sigma = 0.01;
+	normal_distribution<double> gaussian(mu, sigma);
+	
+	int noise_status = 0;  // Noise status is 0 or 1
 
 
 
