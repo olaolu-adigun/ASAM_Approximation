@@ -10,3 +10,4 @@ ASAM2D:
 clean:
 	rm -f *.o ASAM-Main
 	rm -rf Cauchy Gauss Sinc
+	rm -f InputFxn.dat Errors.dat
