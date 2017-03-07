@@ -9,7 +9,7 @@
 #include <string>
 #include <vector>
 
-#include <Eigen/Core>
+#include "Eigen/Core"
 
 using namespace std;
 using namespace Eigen;
@@ -33,20 +33,24 @@ int main(int argc, char *argv[]){
 	system("cd");
 
 	string rd, mk;
-	string mkcmd = "md ";
+	string mkcmd = "mkdir -p ";
 	string rmcmd = "rm -r ";
 
 	string fnames[3] = {"FxnGen2D.dat", "OutFxn.dat", "Errors.dat"};
-	fstream fxnio[3] = {
-		fstream(fnames[0].data(), ios::in),
-		fstream(fnames[1].data(), ios::out), 
-		fstream(fnames[2].data(), ios::out)
-	};
+
+        std::fstream fxnio[3];
+        fxnio[0].open(fnames[0].data(), ios::in);
+        fxnio[1].open(fnames[1].data(), ios::out);
+        fxnio[2].open(fnames[2].data(), ios::out);
+
+
 	fxnio[1].precision(9);fxnio[2].precision(9);
 
 	if ( fxnio[0].fail() || fxnio[1].fail() || fxnio[2].fail()){
 		cout<<"file i/o error.\n";
-		system("PAUSE"); return EXIT_FAILURE; 
+		//system("PAUSE");  This system command does not exist in linux. You can achieve 
+		//		    same fanctionality with the linux command read 
+		return EXIT_FAILURE; 
 	}
 
 	// Determine dynamic matrix size
@@ -59,25 +63,35 @@ int main(int argc, char *argv[]){
 
 	// Read in function values
 	fxnio[0].clear(); fxnio[0].seekg(0);
-	int r=0, c=0; 
+	int r=0, c=0;
+	double tmp; 
 	while(getline(fxnio[0], line)){
-		buf.clear(); buf.str(line);		
-		while(buf.good()){
-			buf >> fxn(r,c);
-			fxnio[1] << fxn(r,c) << "\t";
+		buf.clear(); buf.str(line);
+		while(buf >> tmp){
+			fxn(r,c)=tmp; 
+			fxnio[1] << tmp << "\t";
 			c++;
 		}
 		fxnio[1] << endl;
 		r++; c = 0;
 	}	
 
+////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+///////////////////////////////////////////////////////////////////////////
+
 	xin = (fxn.col(0)); vector<double> xv = eigvec2stdvec(xin) ;	
 	yin = (fxn.col(1)); vector<double> yv = eigvec2stdvec(yin) ;	
 	fxyin = (fxn.col(2)); vector<double>fxyv = eigvec2stdvec(fxyin) ;	
 
 	//...ASAM(xvals, yvals, fxyvals, _numpat, _numsam, _numdes)
-	/*ASAM* sam =  new CauchyASAM( xv, yv, fxyv, numRules, (int) (0.5*xin.size()), xin.size() );
-	delete sam;*/
+	//ASAM* sam =  new CauchyASAM( xv, yv, fxyv, numRules, (int) (0.5*xin.size()), xin.size() );
+	//delete sam;
 
 	GaussianASAM gsam( xv, yv, fxyv, numRules, (int) (0.5*xin.size()), xin.size() ); 
 	SincASAM ssam( xv, yv, fxyv , numRules, (int) (0.5*xin.size()), xin.size() );
@@ -126,6 +140,6 @@ int main(int argc, char *argv[]){
 
 	for(temp = 0; temp < fnums ; temp++) fxnio[temp].close();	
 	std::cout << "\nDone. Final min MSE = " << errors[loc] << endl;
-	system("PAUSE");
+	//system("PAUSE");  This system command does not exist in linux. You can achieve same fanctionality with the linux command read
 	return EXIT_SUCCESS;
 }

@@ -1,7 +1,7 @@
 #pragma once
 #include <vector>
 #include <string>
-#include <Eigen/Core>
+#include "Eigen/Core"
 #include <iostream>
 #include <fstream>
 
@@ -182,7 +182,7 @@ void ASAM::WriteEpoch(int epoch){
 	s <<"./" << this->type << "/" << "fuzzyF" << this->type << "-" << epoch << ".dat";
 
 	WriteParams("./" + this->type + "/" + "Parameters.par");	
-	ofp.open(s.str(), ios::out); if (ofp.fail()) filefail(s.str());
+	ofp.open(s.str().c_str(), ios::out); if (ofp.fail()) filefail(s.str());
 	for (int k=0;k<NUMDES;k++) 
 		ofp << xtest[k] << "\t" << ytest[k] << "\t"  << F[k] << std::endl;
 
