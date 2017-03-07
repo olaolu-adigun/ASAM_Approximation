@@ -32,7 +32,7 @@ string bname1 ("fuzzyV");	//basename for variance
 
 int main(int argc, char *argv[])
 {
-	int nRules = 5; //5; // # of Rules. Formerly = 12;
+	int nRules = 12; //5; // # of Rules. Formerly = 12;
 	int epochSize = 2000; // Report min error solution after epoch # of steps
 
 	//int adaptIters = epochSize*30;
@@ -48,7 +48,7 @@ int main(int argc, char *argv[])
 	int fxnpts, k;
 	
 	// Set input information
-        double min_x = 0.00, max_x = 1.00;
+        double min_x = 0.00, max_x = 2.00;
 	int N = 1000;
 	double step_size = (max_x - min_x) / N;
 	cout << step_size << endl;
@@ -65,10 +65,21 @@ int main(int argc, char *argv[])
 	}
 	cout<<"File Opening done \n";
 
-	// Add Noise;
-	default_random_engine generator;
-	uniform_real_distribution<double> distribution(0.0,1.0);
+
+///////// DEFINE PARAMETER FOR ADDED NOISE 
+	std::random_device rd;  //Will be used to obtain a seed for the random number engine
+    	std::mt19937 gen(rd());
+	// Define the parameter for Uniform noise
+	double a = 0.0 , b = 0.1;
+	uniform_real_distribution<double> uniform(a,b);
+	// Define the parameter for the Cauchy noise
+	double m = 0.0, d = 0.001;
+	cauchy_distribution<double> cauchy(m, d);
+	// Define the paramter for Gaussian noise
+	double mu = 0.0, sigma = 0.01;
+	normal_distribution<double> gaussian(mu, sigma);
 	
+	int noise_status = 0;  // Noise status is 0 or 1
 
 	//Need to change precision of I/O pipes here...
 	pdfile.precision(9);
@@ -76,7 +87,7 @@ int main(int argc, char *argv[])
 	// Generate the samples
 	for (int i = 0; i <= N; i++){
 		xin[i] = min_x + (i*step_size);
-		fx[i] = sin(xin[i]); 
+		fx[i] = sin(xin[i]) + (noise_status*cauchy(gen)); 
 		pdfile << xin[i] << "\t" << fx[i] << endl;
 	}
 
